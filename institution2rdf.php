@@ -36,11 +36,16 @@ foreach ($files as $filename)
 					$doc->alternateName[] = $hit->code;
 				}
 				
+				if (isset($hit->description))
+				{
+					$doc->description = $hit->description;
+				}
+								
 				// types
 				// everything is an organisation
 				$doc->type = ['Organization'];
 				
-				// map types to schema.org
+				// map types to schema.org (maybe need to expand this, but to what?)
 				foreach ($hit->types as $type)
 				{
 					switch ($type)
@@ -103,6 +108,18 @@ foreach ($files as $filename)
 							break;
 					}
 				}
+				
+				// location
+				if (isset($hit->longitude) && isset($hit->latitude))
+				{
+					$doc->{'wdt:P625'} = 'POINT(' . format_coordinate($hit->longitude) . ' ' . format_coordinate($hit->latitude) . ')';
+				}
+				
+				// logo
+				if (isset($hit->logoUrl))
+				{
+					$doc->logo = $hit->logoUrl;
+				}
 
 				// print_r($doc);
 				
@@ -128,6 +145,14 @@ foreach ($files as $filename)
 					$o = '"' . nice_literal($name) . '"';
 					$triples[] = [$s, $p, $o];
 				}
+				
+				if (isset($doc->description))
+				{
+					$s = $doc->id;
+					$p = 'https://schema.org/description';
+					$o = '"' . nice_literal($doc->description) . '"';
+					$triples[] = [$s, $p, $o];
+				}				
 
 				foreach ($doc->sameAs as $sameAs)
 				{
@@ -137,7 +162,24 @@ foreach ($files as $filename)
 					$triples[] = [$s, $p, $o];
 				}
 				
-	
+				// point location
+				if (isset($doc->{'wdt:P625'}))
+				{
+					$s = $doc->id;
+					$p = 'http://www.wikidata.org/prop/direct/P625';
+					$o = '"' . $doc->{'wdt:P625'} . '"^^<http://www.opengis.net/ont/geosparql#wktLiteral>';
+					$triples[] = [$s, $p, $o];
+				}
+
+				// logo image
+				if (isset($doc->logo))
+				{
+					$s = $doc->id;
+					$p = 'https://schema.org/logo';
+					$o = nice_uri($doc->logo);
+					$triples[] = [$s, $p, $o];
+				}
+					
 				$output = dump_triples($triples);			
 				echo $output . "\n";
 

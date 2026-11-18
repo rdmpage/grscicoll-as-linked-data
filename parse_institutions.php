@@ -23,6 +23,12 @@ foreach ($files as $filename)
 			{
 				//echo $hit->code . "\n";
 				
+				if ($hit->key == '586ee56e-b0fe-4dff-b7f9-aeb104f3308a')
+				{
+					print_r($hit);
+					exit();
+				}
+				
 				foreach ($hit->identifiers as $identifier)
 				{
 					if (!isset($identifier_type[$identifier->type]))

@@ -15,6 +15,33 @@ if (php_sapi_name() === 'cli')
 }
 
 //----------------------------------------------------------------------------------------
+// Format a decimal coordinate for a geo: URI and for WKT.
+//
+// Six decimal places is roughly 0.1 m, well past anything a printed coordinate in a BHL
+// page actually knows, and fixing the precision matters for more than tidiness: a geo: URI
+// is an identifier, so two readings of the same point have to produce the same string or
+// the store sees two places. Trailing zeros go for the same reason -- RFC 5870 compares
+// coordinates as numbers, but a triple store compares IRIs as strings.
+function format_coordinate($value)
+{
+	$text = number_format((float)$value, 6, '.', '');
+
+	if (strpos($text, '.') !== false)
+	{
+		$text = rtrim($text, '0');
+		$text = rtrim($text, '.');
+	}
+
+	// -0 and 0 are the same meridian or equator
+	if ($text == '-0')
+	{
+		$text = '0';
+	}
+
+	return $text;
+}
+
+//----------------------------------------------------------------------------------------
 // Make a URI play nice with triple store
 function nice_uri($uri)
 {
