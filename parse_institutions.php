@@ -1,10 +1,13 @@
 <?php
 
+// Take a look at institutions to get a sense of what it contains
+
 $basedir = 'institution';
 
 $files = scandir($basedir);
 
 $identifier_type = [];
+$types = [];
 
 foreach ($files as $filename)
 {
@@ -29,13 +32,21 @@ foreach ($files as $filename)
 					$identifier_type[$identifier->type]++;
 				}
 				
+				foreach ($hit->types as $type)
+				{
+					if (!isset($types[$type]))
+					{
+						$types[$type] = 0;
+					}
+					$types[$type]++;
+				}
 				
 			}
-		
 		}
 	}
 }
 
 print_r($identifier_type);
+print_r($types);
 
 ?>
