@@ -1,0 +1,6 @@
+.DS_Store
+/collection/
+!*/collection/README.md
+/institution/
+!*/institution/README.md
+
